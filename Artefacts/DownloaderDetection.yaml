@@ -1,0 +1,18 @@
+name: Custom.DownloaderDetection
+author: Ilyes
+description: |
+  Détection de commandes suspectes liées au téléchargement (Invoke-WebRequest, curl, certutil, etc.)
+
+type: CLIENT
+
+parameters:
+  - name: IncludeTerminated
+    type: bool
+    default: false
+    description: Inclure les processus terminés si supporté
+
+sources:
+  - precondition: SELECT OS FROM info() WHERE OS = 'windows'
+    query: |
+      SELECT * FROM pslist(include_terminated=IncludeTerminated)
+      WHERE CommandLine =~ "(?i)(Invoke-WebRequest|curl|wget|certutil|bitsadmin|mshta)"

@@ -1,0 +1,23 @@
+name: Custom.SysmonProcessCreate
+author: Ilyes
+description: |
+  Affiche tous les événements Sysmon de création de processus (EventID 1) en parcourant le fichier EVTX complet.
+
+type: CLIENT
+
+parameters:
+  - name: EvtxPath
+    type: string
+    default: C:\Windows\System32\winevt\Logs\Microsoft-Windows-Sysmon%4Operational.evtx
+    description: Chemin vers le fichier EVTX Sysmon
+
+sources:
+  - query: |
+      SELECT
+        Event.System.TimeCreated.SystemTime AS Timestamp,
+        Event.EventData.Image,
+        Event.EventData.CommandLine,
+        Event.EventData.User,
+        Event.EventData.ParentImage
+      FROM parse_evtx(filename=EvtxPath)
+      WHERE Event.System.EventID = 1

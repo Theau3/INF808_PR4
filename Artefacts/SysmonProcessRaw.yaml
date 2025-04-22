@@ -1,0 +1,17 @@
+name: Custom.SysmonProcessRaw
+author: Ilyes
+description: |
+  Affiche tous les EventID 1 du journal Sysmon avec tous les champs disponibles, brut.
+
+type: CLIENT
+
+parameters:
+  - name: EvtxPath
+    type: string
+    default: C:\Windows\System32\winevt\Logs\Microsoft-Windows-Sysmon%4Operational.evtx
+    description: Chemin vers le journal Sysmon
+
+sources:
+  - query: |
+      SELECT * FROM parse_evtx(filename="C:\\Windows\\System32\\winevt\\Logs\\Microsoft-Windows-Sysmon%4Operational.evtx")
+        LIMIT 10

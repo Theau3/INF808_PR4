@@ -1,0 +1,28 @@
+name: Custom.SysmonDownloaderDetection
+author: Ilyes
+description: |
+  Détection de commandes potentiellement utilisées pour télécharger un fichier via Sysmon.
+
+type: CLIENT
+
+parameters:
+  - name: EvtxPath
+    type: string
+    default: C:\Windows\System32\winevt\Logs\Microsoft-Windows-Sysmon%4Operational.evtx
+    description: Fichier journal Sysmon
+
+sources:
+  - query: |
+      SELECT
+        Event.System.TimeCreated.SystemTime AS Timestamp,
+        Event.EventData.Image,
+        Event.EventData.CommandLine,
+        Event.EventData.ParentImage,
+        Event.EventData.ParentCommandLine,
+        Event.EventData.User
+      FROM parse_evtx(filename=EvtxPath)
+      WHERE Event.System.EventID.Value = 1
+        AND (
+          Event.EventData.CommandLine =~ "(?i)(curl|wget|bitsadmin|certutil|Invoke-WebRequest|Invoke-Expression|iwr|start-bitstransfer|http|https|ftp|tftp)"
+          OR Event.EventData.Image =~ "(?i)(curl|wget|bitsadmin|certutil|mshta|powershell|ftp|tftp)"
+        )
